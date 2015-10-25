@@ -41,8 +41,8 @@ Multiple selectables
 
 Additional selectable elements such as a navigation can be bound via the `selected` attribute.
 The example binds a `<paper-tabs>` to actively highlight the relevant page section.
-Binding permanent site components such as a navigation bar has the advantage that they
-are not reinstantiated upon each page navigation.
+Binding permanent site components has the advantage that they
+are not reinstantiated upon page navigation.
 
 ```html
 <iron-routes for="app" attr-for-selected="section" selected="{{section}}">
@@ -133,10 +133,10 @@ to nicely animate page transitions. Replace `<iron-pages>` by `<neon-animated-pa
 
 <neon-animated-pages id="app" entry-animation="fade-in-animation" exit-animation="fade-out-animation">
   <section><h1>Welcome</h1></section>
-  <iron-pages>
+  <neon-animated-pages entry-animation="fade-in-animation" exit-animation="fade-out-animation">
     <careers-home/>
     <careers-job/>
-  </iron-pages>
+  </neon-animated-pages>
 </neon-animated-pages>
 ```
 
