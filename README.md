@@ -78,8 +78,8 @@ Using nested routes, the example can be further simplified.
 </iron-routes>
 
 <paper-tabs selected="[[selected]]">
-  <paper-tab section="home">Home</paper-tab>
-  <paper-tab section="careers">Careers</paper-tab>
+  <paper-tab>Home</paper-tab>
+  <paper-tab>Careers</paper-tab>
 </paper-tabs>
 
 <iron-pages id="app">
@@ -98,7 +98,7 @@ While a site keeps growing, lazy HTML imports and lazy element instantiation may
 initial loading. _(This feature is not yet working stably.)_
 
 ```html
-<iron-routes for="app" selected="{{selected}}">
+<iron-routes for="app">
   <iron-route path="/"></iron-route>
   <iron-routes path="/careers/" href="elements/careers-elements.html">
     <iron-route path="/"></iron-route>
@@ -123,7 +123,7 @@ You can make use of [neon animation](https://elements.polymer-project.org/elemen
 to nicely animate page transitions. Replace `<iron-pages>` by `<neon-animated-pages>`.
 
 ```html
-<iron-routes for="app" selected="{{selected}}">
+<iron-routes for="app">
   <iron-route path="/"></iron-route>
   <iron-routes path="/careers/" href="elements/careers-elements.html">
     <iron-route path="/"></iron-route>
