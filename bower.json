@@ -1,0 +1,29 @@
+{
+  "name": "iron-routes",
+  "version": "0.5.0",
+  "homepage": "https://github.com/daluge/iron-routes",
+  "authors": [
+    "Filip Dalüge <daluege@gmail.com>"
+  ],
+  "description": "A Polymer router done right",
+  "main": "iron-routes.html",
+  "keywords": [
+    "Polymer",
+    "router",
+    "neon",
+    "animations",
+    "lazy",
+    "load"
+  ],
+  "license": "BSD",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "page": "visionmedia/page.js#~1.6.4"
+  }
+}
