@@ -1,0 +1,214 @@
+<!-- A beautiful router based on page.js-->
+
+<script src="/bower_components/page/page.js"></script>
+
+<script>
+
+  Polymer.IronRouteBehavior = {
+    properties: {
+      path: {
+        type: String,
+        value: null,
+        reflectToAttribute: true
+      },
+      pathname: {
+        type: String,
+        computed: '_computePathname(path, parentRoute)'
+      },
+      parentRoute: {
+        type: Object,
+        value: null,
+        readOnly: true
+      },
+      started: {
+        type: Boolean,
+        value: false,
+        readOnly: true
+      },
+      params: {
+        type: Object,
+        value: null,
+        notify: true
+      },
+    },
+
+    listeners: {
+      'iron-route-attached': '_attachedHandler'
+    },
+
+    created: function () {
+      this.started = false;
+      this.addEventListener('iron-route-attached', this._attachedCaptor.bind(this), true);
+    },
+
+    ready: function () {
+      // TODO: auto-select first
+      //if (!this.selectedItem) 
+      this.routes = [];
+      this.fire('iron-route-attached', null, { bubbles: false });
+    },
+
+    attached: function () {
+      if (!this.parentRoute) {
+        this.start();
+        page();
+      }
+    },
+
+    start: function (listen) {
+      if (this.started) return;
+      this._setStarted(true);
+
+      for (var i = 0; i < this.routes.length; i++) this.routes[i].start(false);
+      page(this.pathname, function (ctx) { console.log(this.pathname, ctx); this.params = ctx.params; this.fire('iron-navigate', ctx) }.bind(this));
+    },
+
+    _attachedCaptor: function (event) {
+      this._setParentRoute(event.parentRoute);
+      event.parentRoute = this;
+    },
+
+    _attachedHandler: function (event) {
+      if (this.parentRoute) this.parentRoute.routes.push(this);
+    },
+
+    _computePathname: function () {
+      return (this.get('parentRoute.pathname') || '')+(this.path || '');
+    }
+  };
+
+  Polymer.IronImportBehavior = {
+    behaviors: [Polymer.IronSelectableBehavior],
+
+    properties: {
+      href: {
+        type: String,
+        value: null,
+        reflectToAttribute: true
+      },
+      loaded: {
+        type: Boolean,
+        value: false,
+        readOnly: true
+      }
+    },
+
+    ready: function () {
+      // If this element is a page, the selectable is the immediate parent node
+      this._activateCaptor = this._activateCaptor.bind(this);
+      this._selectable = this.parentNode;
+      if (this._selectable) this._selectable.addEventListener('iron-activate', this._activateCaptor, true);
+    },
+
+    detached: function () {
+      this._selectable.removeEventListener('iron-activate', this._activateCaptor, true);
+    },
+
+    _activateCaptor: function (activateEvent) {
+      if (activateEvent.detail.item == this && !this.loaded && this.href != null) {
+        this.importHref(this.href, loadHandler.bind(this), errorHandler.bind(this));
+        activateEvent.preventDefault();
+      }
+      function loadHandler(loadEvent) {
+        this._setLoaded(true);
+        if (!this.fire('iron-activate', activateEvent.detail, { cancelable: true }).defaultPrevented) {
+          activateEvent.target.select(activateEvent.detail.selected);
+        }
+      }
+      function errorHandler(errorEvent) {
+      }
+    }
+  };
+
+  Polymer({
+    is: 'iron-route',
+
+    behaviors: [Polymer.IronRouteBehavior, Polymer.IronImportBehavior]
+  });
+
+  Polymer({
+    is: 'iron-routes',
+
+    behaviors: [Polymer.IronSelectableBehavior, Polymer.IronRouteBehavior, Polymer.IronImportBehavior],
+
+    properties: {
+      activateEvent: {
+        type: String,
+        value: 'iron-navigate'
+      },
+      'for': {
+        type: String,
+        value: null,
+        reflectToAttribute: true
+      },
+    },
+
+    observers: [
+      '_selectTarget(selected)'
+    ],
+
+    _selectTarget: function () {
+      var element = this, forElement;
+      if (this['for'] && (forElement = document.getElementById(this['for']))) {
+        forElement.selected = this.selected;
+        while ((element = element.selectedItem) && (forElement = forElement.selectedItem)) {
+          forElement.params = element.params;
+          console.log(element, element.selected);
+          if (element.selected && forElement.selected != element.selected) {
+            forElement.selected = element.selected;
+          }
+        }
+      }
+    },
+  });
+
+  Polymer({
+    is: 'iron-import',
+
+    behaviors: [Polymer.IronImportBehavior],
+
+    properties: {
+      name: {
+        type: String,
+        value: null,
+        reflectToAttribute: true
+      },
+    },
+
+    attached: function () {
+      this._selectable = this.parentNode;
+      this._selectHandler = this._selectHandler.bind(this);
+      this._selectable.addEventListener('iron-select', this._selectHandler);
+    },
+
+    detached: function () {
+      this._selectable.removeEventListener('iron-select', this._selectHandler);
+    },
+
+    _selectHandler: function (event) {
+      if (event.detail.item != this) return;
+
+      if (this.name) {
+        var element = document.createElement(this.name);
+        element.innerHTML = this.innerHTML;
+        for (var i = 0; i < this.attributes.length; i++) {
+          var attribute = this.attributes[i];
+          if (attribute.specified && !(attribute.name in this.properties)) {
+            element.setAttribute(attribute.name, attribute.value);
+          }
+        }
+        this.parentNode.replaceChild(element, this);
+      }
+    }
+  });
+
+  Polymer.Base.urlFor = function urlFor(id) {
+    var route = document.getElementById(id);
+    return (route && route.pathname) ? route.pathname : '/';
+  };
+
+  function hasBehavior(node, behavior) {
+    return (node.behaviors instanceof Array) && node.behaviors.indexOf(behavior) >= 0;
+  }
+
+</script>
